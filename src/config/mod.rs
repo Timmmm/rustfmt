@@ -361,7 +361,14 @@ impl Config {
                 dir.to_path_buf()
             };
 
-            current = fs::canonicalize(current)?;
+            // WASM does not support canonicalize, so we skip it.
+            // See https://github.com/rust-lang/rust/issues/141854
+            // Could use the implementation here:
+            // https://github.com/rolldown/rolldown/issues/898#issuecomment-2122030074
+            #[cfg(not(target_family = "wasm"))]
+            {
+                current = fs::canonicalize(current)?;
+            }
 
             loop {
                 match get_toml_path(&current) {
@@ -499,7 +506,8 @@ fn get_toml_path(dir: &Path) -> Result<Option<PathBuf>, Error> {
         match fs::metadata(&config_file) {
             // Only return if it's a file to handle the unlikely situation of a directory named
             // `rustfmt.toml`.
-            Ok(ref md) if md.is_file() => return Ok(Some(config_file.canonicalize()?)),
+            // Canonicalize not supported on WASI.
+            Ok(ref md) if md.is_file() => return Ok(Some(config_file)),
             // Return the error if it's something other than `NotFound`; otherwise we didn't
             // find the project file yet, and continue searching.
             Err(e) => {

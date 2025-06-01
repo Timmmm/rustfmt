@@ -160,13 +160,16 @@ fn format_project<T: FormatHandler>(
     }
     timer = timer.done_formatting();
 
-    should_emit_verbose(input_is_stdin, config, || {
-        println!(
-            "Spent {0:.3} secs in the parsing phase, and {1:.3} secs in the formatting phase",
-            timer.get_parse_time(),
-            timer.get_format_time(),
-        )
-    });
+    // Some platforms (e.g. WASM) don't support timing.
+    if !matches!(timer, Timer::Disabled) {
+        should_emit_verbose(input_is_stdin, config, || {
+            println!(
+                "Spent {0:.3} secs in the parsing phase, and {1:.3} secs in the formatting phase",
+                timer.get_parse_time(),
+                timer.get_format_time(),
+            )
+        });
+    }
 
     Ok(context.report)
 }

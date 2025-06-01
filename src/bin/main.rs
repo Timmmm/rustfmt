@@ -22,13 +22,20 @@ use crate::rustfmt::{
     FormatReportFormatterBuilder, Input, Session, StyleEdition, Verbosity, Version, load_config,
 };
 
+#[cfg(not(target_family = "wasm"))]
 const BUG_REPORT_URL: &str = "https://github.com/rust-lang/rustfmt/issues/new?labels=bug";
 
 // N.B. these crates are loaded from the sysroot, so they need extern crate.
+#[cfg(not(target_family = "wasm"))]
 extern crate rustc_driver;
 
 fn main() {
-    rustc_driver::install_ice_hook(BUG_REPORT_URL, |_| ());
+    // rustc_driver doesn't build for WASI.
+    #[cfg(not(target_family = "wasm"))]
+    {
+        rustc_driver::install_ice_hook(BUG_REPORT_URL, |_| ());
+    }
+
 
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_env("RUSTFMT_LOG"))

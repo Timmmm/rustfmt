@@ -96,6 +96,11 @@ impl From<Color> for ColorConfig {
     }
 }
 
+// No idea what this is but it's in rustc_driver and we can't use that
+// because it's a dylib and you can't build that for WASM.
+// Hopefully it isn't important!
+static DEFAULT_LOCALE_RESOURCES: &[&str] = &[];
+
 fn default_dcx(
     source_map: Arc<SourceMap>,
     ignore_path_set: Arc<IgnorePathSet>,
@@ -110,10 +115,8 @@ fn default_dcx(
         ColorConfig::Never
     };
 
-    let fallback_bundle = rustc_errors::fallback_fluent_bundle(
-        rustc_driver::DEFAULT_LOCALE_RESOURCES.to_vec(),
-        false,
-    );
+    let fallback_bundle =
+        rustc_errors::fallback_fluent_bundle(DEFAULT_LOCALE_RESOURCES.to_vec(), false);
     let emitter = Box::new(
         HumanEmitter::new(stderr_destination(emit_color), fallback_bundle)
             .sm(Some(source_map.clone())),

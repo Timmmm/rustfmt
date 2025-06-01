@@ -1,0 +1,26 @@
+{
+    "argv0": "rustfmt",
+    "max_filenames": 64,
+    "require_serial": false,
+    "args": [
+        {
+            "name": "args",
+            "args": [
+                "--unstable-features",
+                "--skip-children"
+            ]
+        },
+        {
+            "name": "extra_args",
+            "args": []
+        },
+        {
+            "name": "separator",
+            "args": ["--"]
+        }
+    ],
+    "default_match": {
+        "glob": "*.rs"
+    },
+    "repo": "https://github.com/timmmm/rustfmt"
+}
